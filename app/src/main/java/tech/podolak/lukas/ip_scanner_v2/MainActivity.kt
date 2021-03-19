@@ -6,6 +6,8 @@ import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 class MainActivity : AppCompatActivity() {
 
@@ -14,10 +16,28 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
 
-        findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
+        val testList = generateItemList(255)
+
+        findViewById<RecyclerView>(R.id.recycler_view).adapter = RvAdapter(testList)
+        findViewById<RecyclerView>(R.id.recycler_view).layoutManager = LinearLayoutManager(this)
+        findViewById<RecyclerView>(R.id.recycler_view).setHasFixedSize(true)
+    }
+
+    private fun generateItemList(size: Int): List<RvItem> {
+        val list = ArrayList<RvItem>()
+
+        for (i in 0 until size) {
+            val drawable = when (i % 3) {
+                0 -> R.drawable.ic_check
+                1 -> R.drawable.ic_using
+                else -> R.drawable.ic_other
+            }
+
+            val item = RvItem(drawable, "Item $i", "Random second line bro.")
+            list += item
         }
+
+        return list
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
