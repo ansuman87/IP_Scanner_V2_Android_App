@@ -6,12 +6,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_margin="4dp"
+        android:padding="4dp"
+        android:text="SCANN NETWORK"
+        android:layout_alignParentTop="true"
+        android:id="@+id/scann_button"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
-        tools:listitem="@layout/rv_item"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipToPadding="false"
+        android:layout_alignTop="@id/scann_button"
+        android:layout_marginTop="58dp"
         android:padding="4dp"
-        android:scrollbars="vertical" />
+        android:scrollbars="vertical"
+        tools:listitem="@layout/rv_item" />
 </RelativeLayout>

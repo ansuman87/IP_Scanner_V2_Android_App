@@ -1,13 +1,17 @@
 package tech.podolak.lukas.ip_scanner_v2
 
+import android.net.wifi.WifiManager
 import android.os.Bundle
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
+import android.util.Log
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import android.view.Menu
-import android.view.MenuItem
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import java.net.InetAddress
+import java.net.NetworkInterface
+import java.util.*
+import kotlin.collections.ArrayList
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -16,11 +20,33 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
 
-        val testList = generateItemList(255)
+        val testList = generateItemList(25)
 
         findViewById<RecyclerView>(R.id.recycler_view).adapter = RvAdapter(testList)
         findViewById<RecyclerView>(R.id.recycler_view).layoutManager = LinearLayoutManager(this)
         findViewById<RecyclerView>(R.id.recycler_view).setHasFixedSize(true)
+
+        val ipAddress = getLocalIpAddress()
+        findViewById<TextView>(R.id.ip_text).text = ipAddress
+    }
+
+    fun getLocalIpAddress(): String? {
+        try {
+            val en: Enumeration<NetworkInterface> = NetworkInterface.getNetworkInterfaces()
+            while (en.hasMoreElements()) {
+                val intf: NetworkInterface = en.nextElement()
+                val enumIpAddr: Enumeration<InetAddress> = intf.getInetAddresses()
+                while (enumIpAddr.hasMoreElements()) {
+                    val inetAddress: InetAddress = enumIpAddr.nextElement()
+                    if (!inetAddress.isLoopbackAddress()) {
+                        return inetAddress.getHostAddress()
+                    }
+                }
+            }
+        } catch (ex: Exception) {
+            Log.e("IP Address", ex.toString())
+        }
+        return null
     }
 
     private fun generateItemList(size: Int): List<RvItem> {
@@ -38,21 +64,5 @@ class MainActivity : AppCompatActivity() {
         }
 
         return list
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        return when (item.itemId) {
-            R.id.action_settings -> true
-            else -> super.onOptionsItemSelected(item)
-        }
     }
 }
