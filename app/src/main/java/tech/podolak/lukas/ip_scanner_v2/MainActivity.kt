@@ -15,42 +15,56 @@ import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity() {
+    private val itemList = ArrayList<RvItem>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
 
+        findViewById<RecyclerView>(R.id.recycler_view).adapter = RvAdapter(itemList)
+        findViewById<RecyclerView>(R.id.recycler_view).layoutManager = LinearLayoutManager(this)
+        findViewById<RecyclerView>(R.id.recycler_view).setHasFixedSize(true)
 
         val ipAddress = getLocalIpAddress()
         findViewById<TextView>(R.id.ip_text).text = "Your IPv4 address is: $ipAddress"
 
         val scannerButton: Button = findViewById(R.id.scann_button)
         scannerButton.setOnClickListener {
-            val ipList = scannNetworkIPs()
-
-            findViewById<RecyclerView>(R.id.recycler_view).adapter = RvAdapter(ipList)
-            findViewById<RecyclerView>(R.id.recycler_view).layoutManager = LinearLayoutManager(this)
-            findViewById<RecyclerView>(R.id.recycler_view).setHasFixedSize(true)
+            scannNetworkIPs()
         }
     }
 
-    fun scannNetworkIPs(): List<RvItem> {
+    fun scannNetworkIPs() {
         val wm: WifiManager = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
         val splitIP = Formatter.formatIpAddress(wm.connectionInfo.ipAddress).split('.').toTypedArray()
         val list = ArrayList<RvItem>()
 
-        for (i in 1 .. 255) {
+        for (i in 1 .. 15) {
             val ip = splitIP[0] + "." + splitIP[1] + "." + splitIP[2] + "." + i
 
-            list += if (Socket(ip, 7).isBound) {
+            list += if (isConnectedToThisServer(ip)) {
                 RvItem(R.drawable.ic_check, ip, "This IP Address is available.")
             } else {
                 RvItem(R.drawable.ic_using, ip, "This IP Address is not available.")
             }
-        }
 
-        return list
+            findViewById<RecyclerView>(R.id.recycler_view).adapter?.notifyItemInserted(i - 1)
+        }
+    }
+
+    fun isConnectedToThisServer(host: String): Boolean {
+        val runTime: Runtime = Runtime.getRuntime()
+
+        val ipPrco: Process = runTime.exec("/system/bin/ping -c 1 " + host)
+        val exitValue: Int = ipPrco.waitFor()
+
+        if (exitValue == 0) {
+            return false
+        }
+        else {
+            return true
+        }
     }
 
     fun getLocalIpAddress(): String? {
