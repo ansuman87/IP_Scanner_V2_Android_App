@@ -2,6 +2,7 @@ package tech.podolak.lukas.ip_scanner_v2
 
 import android.net.wifi.WifiManager
 import android.os.Bundle
+import android.text.format.Formatter
 import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -27,26 +28,14 @@ class MainActivity : AppCompatActivity() {
         findViewById<RecyclerView>(R.id.recycler_view).setHasFixedSize(true)
 
         val ipAddress = getLocalIpAddress()
-        findViewById<TextView>(R.id.ip_text).text = ipAddress
+        findViewById<TextView>(R.id.ip_text).text = "Your IPv4 address is: $ipAddress"
+
     }
 
     fun getLocalIpAddress(): String? {
-        try {
-            val en: Enumeration<NetworkInterface> = NetworkInterface.getNetworkInterfaces()
-            while (en.hasMoreElements()) {
-                val intf: NetworkInterface = en.nextElement()
-                val enumIpAddr: Enumeration<InetAddress> = intf.getInetAddresses()
-                while (enumIpAddr.hasMoreElements()) {
-                    val inetAddress: InetAddress = enumIpAddr.nextElement()
-                    if (!inetAddress.isLoopbackAddress()) {
-                        return inetAddress.getHostAddress()
-                    }
-                }
-            }
-        } catch (ex: Exception) {
-            Log.e("IP Address", ex.toString())
-        }
-        return null
+        val wm: WifiManager = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
+
+        return Formatter.formatIpAddress(wm.connectionInfo.ipAddress)
     }
 
     private fun generateItemList(size: Int): List<RvItem> {

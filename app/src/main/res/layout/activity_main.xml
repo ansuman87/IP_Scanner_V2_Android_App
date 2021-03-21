@@ -22,7 +22,9 @@
             android:id="@+id/ip_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Neco" />
+            android:text="Your IPv4 address is: 0.0.0.0"
+            android:layout_marginLeft="15dp"
+            android:layout_marginBottom="5dp"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 
