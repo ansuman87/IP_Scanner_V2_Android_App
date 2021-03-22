@@ -16,13 +16,14 @@ import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
     private val itemList = ArrayList<RvItem>()
+    private val adapter = RvAdapter(itemList)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(findViewById(R.id.toolbar))
 
-        findViewById<RecyclerView>(R.id.recycler_view).adapter = RvAdapter(itemList)
+        findViewById<RecyclerView>(R.id.recycler_view).adapter = adapter
         findViewById<RecyclerView>(R.id.recycler_view).layoutManager = LinearLayoutManager(this)
         findViewById<RecyclerView>(R.id.recycler_view).setHasFixedSize(true)
 
@@ -38,18 +39,17 @@ class MainActivity : AppCompatActivity() {
     fun scannNetworkIPs() {
         val wm: WifiManager = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
         val splitIP = Formatter.formatIpAddress(wm.connectionInfo.ipAddress).split('.').toTypedArray()
-        val list = ArrayList<RvItem>()
 
         for (i in 1 .. 15) {
             val ip = splitIP[0] + "." + splitIP[1] + "." + splitIP[2] + "." + i
 
-            list += if (isConnectedToThisServer(ip)) {
-                RvItem(R.drawable.ic_check, ip, "This IP Address is available.")
+            if (isConnectedToThisServer(ip)) {
+                itemList.add(i - 1, RvItem(R.drawable.ic_check, ip, "This IP Address is available."))
             } else {
-                RvItem(R.drawable.ic_using, ip, "This IP Address is not available.")
+                itemList.add(i - 1, RvItem(R.drawable.ic_using, ip, "This IP Address is not available."))
             }
 
-            findViewById<RecyclerView>(R.id.recycler_view).adapter?.notifyItemInserted(i - 1)
+            adapter.notifyItemInserted(i - 1)
         }
     }
 
