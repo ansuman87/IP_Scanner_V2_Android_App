@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         val wm: WifiManager = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
         val splitIP = Formatter.formatIpAddress(wm.connectionInfo.ipAddress).split('.').toTypedArray()
 
-        for (i in 1 .. 15) {
+        for (i in 1 .. 255) {
             val ip = splitIP[0] + "." + splitIP[1] + "." + splitIP[2] + "." + i
 
             if (isConnectedToThisServer(ip)) {
