@@ -3,16 +3,16 @@ package tech.podolak.lukas.ip_scanner_v2
 import android.net.wifi.WifiManager
 import android.os.Bundle
 import android.text.format.Formatter
-import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import java.net.*
 import java.util.*
 import kotlin.collections.ArrayList
-
 
 class MainActivity : AppCompatActivity() {
     private val itemList = ArrayList<RvItem>()
@@ -32,11 +32,13 @@ class MainActivity : AppCompatActivity() {
 
         val scannerButton: Button = findViewById(R.id.scann_button)
         scannerButton.setOnClickListener {
+            itemList.clear()
+            adapter.notifyDataSetChanged()
             scannNetworkIPs()
         }
     }
 
-    fun scannNetworkIPs() {
+    private fun scannNetworkIPs() = GlobalScope.async {
         val wm: WifiManager = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
         val splitIP = Formatter.formatIpAddress(wm.connectionInfo.ipAddress).split('.').toTypedArray()
 
@@ -53,21 +55,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun isConnectedToThisServer(host: String): Boolean {
+    private fun isConnectedToThisServer(host: String): Boolean {
         val runTime: Runtime = Runtime.getRuntime()
 
-        val ipPrco: Process = runTime.exec("/system/bin/ping -c 1 " + host)
+        val ipPrco: Process = runTime.exec("ping -c 1 " + host)
         val exitValue: Int = ipPrco.waitFor()
 
         if (exitValue == 0) {
             return false
-        }
-        else {
+        } else {
             return true
         }
     }
 
-    fun getLocalIpAddress(): String? {
+    private fun getLocalIpAddress(): String? {
         val wm: WifiManager = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
         return Formatter.formatIpAddress(wm.connectionInfo.ipAddress)
     }
